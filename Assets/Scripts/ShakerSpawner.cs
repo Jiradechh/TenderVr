@@ -19,7 +19,6 @@ public class ShakerSpawner : MonoBehaviour
         {
             GameObject shaker = Instantiate(shakerPrefab, spawnPoint.position, spawnPoint.rotation);
             shaker.name = "Shaker";
-            Debug.Log("🔁 Shaker spawned.");
         }
     }
 }
