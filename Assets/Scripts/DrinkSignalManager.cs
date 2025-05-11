@@ -9,31 +9,48 @@ public class DrinkSignalManager : MonoBehaviour
     [SerializeField]
     private int currentIngredient;
 
-    private float timer = 0f;
-    private bool isTiming = false;
-    private float currentTimeLimit = 600f;
+    private float orderTimer = 0f;
+    private float orderTimeLimit = 30f;
+    private bool orderActive = false;
+
+    private float gameTimer = 0f;
+    private float gameDuration = 180f;
+
+    private bool gameRunning = false;
 
     void Start()
     {
-        //GenerateNewOrder();
+        gameRunning = true;
+        gameTimer = 0f;
+
+        GenerateNewOrder();
+    }
+
+    public void BeginOrder()
+    {
+        GenerateNewOrder();
     }
 
     void Update()
     {
-        if (isTiming)
-        {
-            timer += Time.deltaTime;
+        if (!gameRunning) return;
 
-            if (timer >= currentTimeLimit)
+        gameTimer += Time.deltaTime;
+        if (gameTimer >= gameDuration)
+        {
+            EndGame();
+            return;
+        }
+
+        if (orderActive)
+        {
+            orderTimer += Time.deltaTime;
+            if (orderTimer >= orderTimeLimit)
             {
-                Debug.Log("⏰ Time's up! Order failed.");
+                Debug.Log("⏰ Order timeout.");
                 FailOrder();
             }
         }
-    }
-    public void BeginOrder()
-    {
-        GenerateNewOrder();
     }
 
     public void GenerateNewOrder()
@@ -42,38 +59,31 @@ public class DrinkSignalManager : MonoBehaviour
         currentIngredient = Random.Range(0, 4);
         signalRenderer.material.color = currentOrder;
 
-        currentTimeLimit = CalculateTimeLimit(ScoreManager.Instance?.GetScore() ?? 0);
-        timer = 0f;
-        isTiming = true;
+        orderTimeLimit = CalculateTimeLimit(ScoreManager.Instance?.GetScore() ?? 0);
+        orderTimer = 0f;
+        orderActive = true;
 
-        Debug.Log($"📦 New Order: Color = {currentOrder}, IngredientCode = {currentIngredient}, TimeLimit = {currentTimeLimit}s");
-    }
-
-    private float CalculateTimeLimit(int score)
-    {
-        if (score >= 7) return 15f;
-        if (score >= 5) return 20f;
-        if (score >= 3) return 25f;
-        return 30f;
+        Debug.Log($"📦 New Order: Color = {currentOrder}, IngredientCode = {currentIngredient}, TimeLimit = {orderTimeLimit}s");
     }
 
     public void OnDrinkDelivered(Color deliveredColor, int ingredientCode)
     {
-        isTiming = false;
+        orderActive = false;
 
         Debug.Log($"📤 Delivered drink: Color = {deliveredColor}, IngredientCode = {ingredientCode}");
 
         if (CheckDrink(deliveredColor, ingredientCode))
         {
-            Debug.Log("✅ Correct drink delivered! +1 score");
-            ScoreManager.Instance?.AddScore(1);
-            GenerateNewOrder();
+            Debug.Log("✅ Correct drink delivered! +5 score");
+            ScoreManager.Instance?.AddScore(5);
         }
         else
         {
-            Debug.Log("❌ Wrong drink! -1 score");
-            FailOrder();
+            Debug.Log("❌ Wrong drink! -3 score");
+            ScoreManager.Instance?.RemoveScore(3); 
         }
+
+        GenerateNewOrder();
     }
 
     public bool CheckDrink(Color drinkColor, int ingredient, float tolerance = 0.15f)
@@ -90,21 +100,35 @@ public class DrinkSignalManager : MonoBehaviour
         return colorMatch && ingredientMatch;
     }
 
+    private float CalculateTimeLimit(int score)
+    {
+        if (score >= 7) return 15f;
+        if (score >= 5) return 20f;
+        if (score >= 3) return 25f;
+        return 30f;
+    }
+
     private void FailOrder()
     {
-        isTiming = false;
-        ScoreManager.Instance?.RemoveScore(1);
+        orderActive = false;
+        ScoreManager.Instance?.RemoveScore(3);
 
-        Debug.Log($"🟥 Order failed! Score = {ScoreManager.Instance?.GetScore()}");
-
-        if (ScoreManager.Instance != null && ScoreManager.Instance.GetScore() <= 0)
-        {
-            Debug.Log("💀 Game Over: Reloading Scene");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            return;
-        }
+        Debug.Log($"🟥 Order failed. Score = {ScoreManager.Instance?.GetScore()}");
 
         GenerateNewOrder();
+    }
+
+    private void EndGame()
+    {
+        gameRunning = false;
+        Debug.Log("🏁 Time's up! Final score: " + ScoreManager.Instance?.GetScore());
+
+        Invoke(nameof(ResetScene), 2f);
+    }
+
+    private void ResetScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public Color GetCurrentOrderColor() => currentOrder;
