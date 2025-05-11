@@ -8,6 +8,9 @@ public class NpcQueueManager : MonoBehaviour
     public List<Transform> queueSpots;
     public DrinkSignalManager drinkSignal;
 
+    public Transform exitPoint;
+
+
     private Queue<CustomerBehavior> customerQueue = new Queue<CustomerBehavior>();
     private bool isProcessing = false;
 
@@ -30,6 +33,8 @@ public class NpcQueueManager : MonoBehaviour
         customer.AssignQueue(queueSpots, index, this);
 
         customerQueue.Enqueue(customer);
+
+        customer.exitPoint = exitPoint;
     }
 
     public void OnCustomerServed()

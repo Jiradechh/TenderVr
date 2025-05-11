@@ -31,7 +31,7 @@ public class Ingredient : MonoBehaviour
             var shaker = other.GetComponent<ShakerGlass>();
             if (shaker != null && shaker.HasWater())
             {
-                shaker.AddIngredient((int)ingredientType);
+                shaker.AddIngredient(ingredientType); 
                 Destroy(gameObject);
             }
         }

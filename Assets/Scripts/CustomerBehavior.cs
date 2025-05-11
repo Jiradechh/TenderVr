@@ -11,6 +11,10 @@ public class CustomerBehavior : MonoBehaviour
     private bool hasOrdered = false;
     private bool happy = false;
 
+    public Transform exitPoint;
+private bool walkingToExit = false;
+
+
     private Vector3 target;
     private NpcQueueManager manager;
 
@@ -52,15 +56,30 @@ public class CustomerBehavior : MonoBehaviour
         }
     }
 
-    void Update()
+        void Update()
     {
         if (isWaiting) return;
+
+        Vector3 direction = target - transform.position;
+        direction.y = 0f;
+
+        if (direction.magnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5f * Time.deltaTime);
+        }
 
         transform.position = Vector3.MoveTowards(transform.position, target, 1.0f * Time.deltaTime);
 
         float distance = Vector3.Distance(transform.position, target);
         if (distance < threshold)
         {
+            if (walkingToExit)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             if (!hasOrdered && queueIndex == 0)
             {
                 isWaiting = true;
@@ -69,16 +88,28 @@ public class CustomerBehavior : MonoBehaviour
         }
     }
 
+
+
     public void SetHappy()
+{
+    if (!happy)
     {
-        if (!happy)
+        happy = true;
+        isWaiting = false;
+
+        manager.OnCustomerServed();
+
+        if (exitPoint != null)
         {
-            happy = true;
-            isWaiting = false;
-
-            manager.OnCustomerServed();
-
-            Destroy(gameObject, 1f);
+            target = exitPoint.position; 
+            walkingToExit = true;        
+        }
+        else
+        {
+            Destroy(gameObject); 
         }
     }
+}
+
+
 }

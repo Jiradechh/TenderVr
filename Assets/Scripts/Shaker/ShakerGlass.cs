@@ -9,6 +9,9 @@ public class ShakerGlass : MonoBehaviour
     private bool isFilled = false;
     private bool hasIngredientAdded = false;
 
+    private Ingredient.Type currentIngredientType;
+
+
     public ParticleSystem waterPourEffect;
     public float pourAngleThreshold = 120f;
     private void Update()
@@ -66,15 +69,17 @@ public class ShakerGlass : MonoBehaviour
         }
     }
 
-    public void AddIngredient(int AddedIngredientCode)
+       public void AddIngredient(Ingredient.Type type)
+{
+    if (isFilled)
     {
-        if (isFilled)
-        {
-            ingredientCode = AddedIngredientCode;
-            //currentColor = ingredientColor; 
-            UpdateVisual();
-        }
+        currentIngredientType = type;
+        Debug.Log($" Shaker added ingredient: {type}");
+        UpdateVisual();
     }
+}
+
+
 
     public bool HasWater() => isFilled;
 
@@ -120,15 +125,16 @@ public class ShakerGlass : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("SignalCheck"))
+            if (other.CompareTag("SignalCheck"))
+    {
+        var signal = other.GetComponent<DrinkSignalManager>();
+        if (signal != null && HasWater())
         {
-            var signal = other.GetComponent<DrinkSignalManager>();
-            if (signal != null && HasWater())
-            {
-                signal.OnDrinkDelivered(currentColor,ingredientCode);
-                Destroy(gameObject); 
-            }
+            signal.OnDrinkDelivered(currentColor, currentIngredientType);
+            Destroy(gameObject); 
         }
+}
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -145,15 +151,16 @@ public class ShakerGlass : MonoBehaviour
     if (!isFilled || hasIngredientAdded) return;
 
     if (collision.collider.CompareTag("Ingredient"))
+{
+    Ingredient ingredient = collision.collider.GetComponent<Ingredient>();
+    if (ingredient != null)
     {
-        Ingredient ingredient = collision.collider.GetComponent<Ingredient>();
-        if (ingredient != null)
-        {
-            AddIngredient((int)ingredient.ingredientType);
-            hasIngredientAdded = true;
-            Destroy(collision.collider.gameObject);
-        }
+        AddIngredient(ingredient.ingredientType);
+        hasIngredientAdded = true;
+        Destroy(collision.collider.gameObject);
     }
+}
+
 }
 
 
