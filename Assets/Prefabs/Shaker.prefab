@@ -142,13 +142,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5640894271137070638}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.1546, z: -0.0063}
-  m_LocalScale: {x: 0.121888, y: 0.11523624, z: 0.08}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.001, y: 0.1546, z: -0.0008}
+  m_LocalScale: {x: 0.13329396, y: -0.026658792, z: 0.13329396}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8389228945155204684}
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5268982128730710039
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -156,7 +156,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5640894271137070638}
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &7989315482419855858
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5302,5 +5302,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   liquidVisual: {fileID: 5640894271137070638}
   currentColor: {r: 0, g: 0, b: 0, a: 0}
+  ingredientCode: 0
   waterPourEffect: {fileID: 1352636076593552997}
   pourAngleThreshold: 120

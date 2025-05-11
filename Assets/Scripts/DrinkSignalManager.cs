@@ -7,10 +7,13 @@ public class DrinkSignalManager : MonoBehaviour
     public Renderer signalRenderer;
     public Color[] recipeColors;
     private Color currentOrder;
+    [SerializeField]
+    private int currentIngredient;
+    private int currenSnack;
 
     private float timer = 0f;
     private bool isTiming = false;
-    private float currentTimeLimit = 30f;
+    private float currentTimeLimit = 600f;
 
     void Start()
     {
@@ -34,6 +37,7 @@ public class DrinkSignalManager : MonoBehaviour
     public void GenerateNewOrder()
     {
         currentOrder = recipeColors[Random.Range(0, recipeColors.Length)];
+        currentIngredient = Random.Range(0,4);
         signalRenderer.material.color = currentOrder;
 
         currentTimeLimit = CalculateTimeLimit(ScoreManager.Instance?.GetScore() ?? 0);
@@ -50,11 +54,11 @@ public class DrinkSignalManager : MonoBehaviour
         return 30f;
     }
 
-    public void OnDrinkDelivered(Color deliveredColor)
+    public void OnDrinkDelivered(Color deliveredColor,int ingredientCode)
     {
         isTiming = false;
 
-        if (CheckDrink(deliveredColor))
+        if (CheckDrink(deliveredColor,ingredientCode))
         {
             ScoreManager.Instance?.AddScore(1);
             GenerateNewOrder();
@@ -65,11 +69,12 @@ public class DrinkSignalManager : MonoBehaviour
         }
     }
 
-    public bool CheckDrink(Color drinkColor, float tolerance = 0.15f)
+    public bool CheckDrink(Color drinkColor, int ingredient, float tolerance = 0.15f)
     {
         return Mathf.Abs(drinkColor.r - currentOrder.r) < tolerance &&
                Mathf.Abs(drinkColor.g - currentOrder.g) < tolerance &&
-               Mathf.Abs(drinkColor.b - currentOrder.b) < tolerance;
+               Mathf.Abs(drinkColor.b - currentOrder.b) < tolerance &&
+         ingredient == currentIngredient;
     }
 
     private void FailOrder()

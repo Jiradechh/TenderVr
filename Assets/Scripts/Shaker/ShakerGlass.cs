@@ -5,6 +5,7 @@ public class ShakerGlass : MonoBehaviour
 {
     public GameObject liquidVisual;
     public Color currentColor = Color.clear;
+    public int ingredientCode;
     private bool isFilled = false;
     private bool hasIngredientAdded = false;
 
@@ -53,23 +54,24 @@ public class ShakerGlass : MonoBehaviour
 
 
 
-    public void FillWithWater()
+    public void FillWithWater(Color waterColor)
     {
         if (!isFilled)
         {
             isFilled = true;
             hasIngredientAdded = false;
             liquidVisual.SetActive(true);
-            currentColor = Color.cyan;
+            currentColor = waterColor;
             UpdateVisual();
         }
     }
 
-    public void AddIngredient(Color ingredientColor)
+    public void AddIngredient(int AddedIngredientCode)
     {
         if (isFilled)
         {
-            currentColor = ingredientColor; 
+            ingredientCode = AddedIngredientCode;
+          //  currentColor = ingredientColor; 
             UpdateVisual();
         }
     }
@@ -91,7 +93,28 @@ public class ShakerGlass : MonoBehaviour
 
         if (other.CompareTag("WaterParticle"))
         {
-            FillWithWater();
+            FillWithWater(Color.cyan);
+        }
+        if (other.CompareTag("OrangeParticle"))
+        {
+            FillWithWater(new Color(1f, 0.5f, 0f));
+        }
+        if (other.CompareTag("GrapeParticle"))
+        {
+            FillWithWater(new Color(0.5f, 0f, 0.5f));
+        }
+        if (other.CompareTag("AppleParticle"))
+        {
+            FillWithWater(Color.red);
+        }
+        if (other.CompareTag("PineappleParticle"))
+        {
+            FillWithWater(Color.yellow);
+        }
+       
+        if (other.CompareTag("VegetableParticle"))
+        {
+            FillWithWater(Color.green);
         }
     }
 
@@ -102,7 +125,7 @@ public class ShakerGlass : MonoBehaviour
             var signal = other.GetComponent<DrinkSignalManager>();
             if (signal != null && HasWater())
             {
-                signal.OnDrinkDelivered(currentColor);
+                signal.OnDrinkDelivered(currentColor,ingredientCode);
                 Destroy(gameObject); 
             }
         }
@@ -126,7 +149,7 @@ public class ShakerGlass : MonoBehaviour
         Ingredient ingredient = collision.collider.GetComponent<Ingredient>();
         if (ingredient != null)
         {
-            AddIngredient(ingredient.GetColor());
+            AddIngredient((int)ingredient.ingredientType);
             hasIngredientAdded = true;
             Destroy(collision.collider.gameObject);
         }
