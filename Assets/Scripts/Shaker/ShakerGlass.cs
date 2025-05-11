@@ -83,45 +83,57 @@ public class ShakerGlass : MonoBehaviour
 
     public bool HasWater() => isFilled;
 
-    private void UpdateVisual()
+private void UpdateVisual()
+{
+    var renderer = liquidVisual.GetComponent<Renderer>();
+    if (renderer != null)
     {
-        var renderer = liquidVisual.GetComponent<Renderer>();
-        if (renderer != null)
+        Material mat = renderer.material;
+
+        if (mat.HasProperty("_DeepColor"))
         {
-            renderer.material.color = currentColor;
+            mat.SetColor("_DeepColor", currentColor);
+            Debug.Log("✅ Deep Color updated to: " + currentColor);
+        }
+        else
+        {
+            Debug.LogWarning("❌ Material missing DeepColor property.");
         }
     }
+}
 
-    private void OnParticleCollision(GameObject other)
+
+
+   private void OnParticleCollision(GameObject other)
+{
+    Debug.Log("OnParticleCollision: " + other.name);
+
+    if (other.CompareTag("WaterParticle"))
     {
-        Debug.Log("OnParticleCollision: " + other.name);
-
-        if (other.CompareTag("WaterParticle"))
-        {
-            FillWithWater(Color.cyan);
-        }
-        if (other.CompareTag("OrangeParticle"))
-        {
-            FillWithWater(new Color(1f, 0.5f, 0f));
-        }
-        if (other.CompareTag("GrapeParticle"))
-        {
-            FillWithWater(new Color(0.5f, 0f, 0.5f));
-        }
-        if (other.CompareTag("AppleParticle"))
-        {
-            FillWithWater(Color.red);
-        }
-        if (other.CompareTag("PineappleParticle"))
-        {
-            FillWithWater(Color.yellow);
-        }
-       
-        if (other.CompareTag("VegetableParticle"))
-        {
-            FillWithWater(Color.green);
-        }
+        FillWithWater(Color.cyan);
     }
+    else if (other.CompareTag("OrangeParticle"))
+    {
+        FillWithWater(new Color(1f, 0.5f, 0f)); 
+    }
+    else if (other.CompareTag("GrapeParticle"))
+    {
+        FillWithWater(new Color(0.5f, 0f, 0.5f)); 
+    }
+    else if (other.CompareTag("AppleParticle"))
+    {
+        FillWithWater(Color.red);
+    }
+    else if (other.CompareTag("PineappleParticle"))
+    {
+        FillWithWater(Color.yellow);
+    }
+    else if (other.CompareTag("VegetableParticle"))
+    {
+        FillWithWater(Color.green);
+    }
+}
+
 
     private void OnTriggerEnter(Collider other)
     {
