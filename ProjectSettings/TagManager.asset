@@ -11,6 +11,10 @@ TagManager:
   - SignalCheck
   - Floor
   - OrangeParticle
+  - GrapeParticle
+  - AppleParticle
+  - PineappleParticle
+  - VegetableParticle
   layers:
   - Default
   - TransparentFX

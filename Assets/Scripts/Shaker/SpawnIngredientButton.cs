@@ -1,10 +1,16 @@
 using UnityEngine;
+using FMODUnity; 
 
 public class SpawnIngredientButton : MonoBehaviour
 {
     public GameObject[] ingredientPrefabs;
     public Transform spawnPoint;
     public float pressThreshold = 0.015f;
+
+    [Header("FMOD")]
+    [SerializeField]
+    private EventReference buttonPressSound; 
+
     private Vector3 startLocalPos;
     private bool canPress = true;
 
@@ -26,6 +32,11 @@ public class SpawnIngredientButton : MonoBehaviour
     void SpawnRandomIngredient()
     {
         canPress = false;
+
+        if (!buttonPressSound.IsNull)
+            RuntimeManager.PlayOneShot(buttonPressSound, transform.position);
+        else
+            Debug.LogWarning("Button press sound not assigned!");
 
         int index = Random.Range(0, ingredientPrefabs.Length);
         Instantiate(ingredientPrefabs[index], spawnPoint.position, Quaternion.identity);

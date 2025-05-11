@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
 
 public class SlideDoor : MonoBehaviour
 {
@@ -8,32 +9,49 @@ public class SlideDoor : MonoBehaviour
     public Transform marker;
     public Transform startlocation;
     public Transform endlocation;
-    void Start()
-    {
 
-    }
+    [Header("FMOD")]
+    [SerializeField]
+    private EventReference doorSlideSound;
+
+    private bool isDoorOpen = false;
 
     void Update()
     {
-        door.transform.position = Vector3.Lerp(door.transform.position, marker.transform.position, 1.5f*Time.deltaTime);
-
+        door.transform.position = Vector3.Lerp(door.transform.position, marker.transform.position, 1.5f * Time.deltaTime);
     }
-   
+
     private void OnTriggerEnter(Collider other)
     {
-      //  if (other.CompareTag("Customer"))
+        // if (other.CompareTag("Customer"))
         {
-            Debug.Log("customerChecked");
-            marker.position = endlocation.position;
-        }
+            if (!isDoorOpen)
+            {
+                isDoorOpen = true;
+                marker.position = endlocation.position;
 
+                if (!doorSlideSound.IsNull)
+                    RuntimeManager.PlayOneShot(doorSlideSound, door.transform.position);
+
+                Debug.Log("🟢 Door opening sound played.");
+            }
+        }
     }
+
     private void OnTriggerExit(Collider other)
     {
-    //    if (other.CompareTag("Customer"))
+        // if (other.CompareTag("Customer"))
         {
-            marker.position = startlocation.position;
+            if (isDoorOpen)
+            {
+                isDoorOpen = false;
+                marker.position = startlocation.position;
+
+                if (!doorSlideSound.IsNull)
+                    RuntimeManager.PlayOneShot(doorSlideSound, door.transform.position);
+
+                Debug.Log("🔴 Door closing sound played.");
+            }
         }
     }
-
 }

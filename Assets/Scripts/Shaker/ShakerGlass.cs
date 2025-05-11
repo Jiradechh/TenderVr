@@ -71,7 +71,7 @@ public class ShakerGlass : MonoBehaviour
         if (isFilled)
         {
             ingredientCode = AddedIngredientCode;
-          //  currentColor = ingredientColor; 
+            //currentColor = ingredientColor; 
             UpdateVisual();
         }
     }

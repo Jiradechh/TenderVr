@@ -1,46 +1,84 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CustomerBehavior : MonoBehaviour
 {
-    public List<Transform> pathMarker;
-    [SerializeField]
-    int index = 0;
-    public int stopIndex;
-    public float threshold;
-    [SerializeField]
-    bool happy =false;
+    public float threshold = 0.1f;
 
-    void Start()
+    private List<Transform> queueSpots;
+    private int queueIndex;
+    private bool isWaiting = false;
+    private bool hasOrdered = false;
+    private bool happy = false;
+
+    private Vector3 target;
+    private NpcQueueManager manager;
+
+    public void AssignQueue(List<Transform> spots, int index, NpcQueueManager mgr)
     {
+        queueSpots = spots;
+        manager = mgr;
+        MoveToQueueSpot(index);
+    }
 
+    public void MoveToQueueSpot(int index)
+    {
+        queueIndex = index;
+
+        if (queueSpots != null && queueSpots.Count > index)
+        {
+            target = queueSpots[index].position;
+        }
+        else
+        {
+            Debug.LogError($"❌ QueueSpot index {index} is invalid or not assigned.");
+        }
+
+        isWaiting = false;
+    }
+
+    public void TryOrder()
+    {
+        if (!hasOrdered && queueIndex == 0)
+        {
+            hasOrdered = true;
+
+            var signal = FindObjectOfType<DrinkSignalManager>();
+            if (signal != null)
+            {
+                signal.BeginOrder();
+                Debug.Log("🧍 Customer placed an order.");
+            }
+        }
     }
 
     void Update()
     {
+        if (isWaiting) return;
 
-        //walk through array of marker
-        Vector3 destination = pathMarker[index].transform.position;
-        Vector3 newpos = Vector3.MoveTowards(transform.position, destination, 1.0f * Time.deltaTime);
-        transform.position = newpos;
+        transform.position = Vector3.MoveTowards(transform.position, target, 1.0f * Time.deltaTime);
 
-        float distance = Vector3.Distance(transform.position, destination);
+        float distance = Vector3.Distance(transform.position, target);
         if (distance < threshold)
         {
-                if (index == stopIndex &&!happy)
-                    return;
-            
-            if (index < pathMarker.Count - 1)
+            if (!hasOrdered && queueIndex == 0)
             {
-                index++;
-            }
-           
-            else
-            {
-                Destroy(gameObject);
+                isWaiting = true;
+                TryOrder();
             }
         }
-        //wait for order to correct then walk away
+    }
+
+    public void SetHappy()
+    {
+        if (!happy)
+        {
+            happy = true;
+            isWaiting = false;
+
+            manager.OnCustomerServed();
+
+            Destroy(gameObject, 1f);
+        }
     }
 }

@@ -6,13 +6,24 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance;
 
     public TextMeshProUGUI scoreText;
+    public AudioSource bgmAudioSource;
+
     private int score = 0;
-    
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
+
+    private void Start()
+    {
+        if (bgmAudioSource != null && !bgmAudioSource.isPlaying)
+        {
+            bgmAudioSource.Play();
+        }
+    }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.T))
@@ -26,6 +37,7 @@ public class ScoreManager : MonoBehaviour
         score += amount;
         UpdateUI();
     }
+
     public void RemoveScore(int amount)
     {
         score = Mathf.Max(0, score - amount);
